@@ -1,0 +1,84 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+ branches:
+  include:
+    - master
+ paths:
+   include: 
+     - webappdemo
+   exclude:
+     - infra
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: 'Release'
+  solutionFiles: '**/*.sln'
+
+stages:
+  - stage: Build
+    displayName: Build Solution
+    jobs:
+      - job: Build 
+        pool:
+          vmImage: 'windows-latest'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install 5.x .NET Core'
+            inputs:
+              packageType: sdk
+              version: '5.x'
+          - task: DotNetCoreCLI@2
+            displayName: 'dotnet restore'
+            inputs:
+              command: 'restore'
+              projects: '$(solutionFiles)'
+              feedsToUse: 'select'
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'build'
+              projects: '$(solutionFiles)'
+              arguments: '-c $(buildConfiguration)'
+          - task: DotNetCoreCLI@2
+            displayName: 'create zip deploy package'
+            inputs:
+              command: publish
+              publishWebProjects: True
+              arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              zipAfterPublish: True
+          - task: PublishBuildArtifacts@1
+            displayName: 'publish artifacts'
+            inputs:
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+              artifactName: 'myWebsiteName'
+  - stage: Deploy
+    displayName: 'Web Deploy'
+    dependsOn: Build
+    jobs:
+      - deployment: 'Webdeploy'
+        pool: 
+          vmimage: 'Ubuntu-latest'
+        environment: production
+        strategy:
+         runOnce:
+           deploy:
+            steps:
+              - task: DownloadBuildArtifacts@0
+                inputs:
+                  buildType: 'current'
+                  downloadType: 'single'
+                  artifactName: 'myWebsiteName'
+                  downloadPath: '$(System.ArtifactsDirectory)'
+              - task: AzureWebApp@1
+                displayName: 'deploy to Azure Web Apps'
+                inputs:
+                  appName: 'kkkkdevopsdemoweb'
+                  azureSubscription: 'AzureWebApp'
+                  appType: webApp
+                  package: '$(System.ArtifactsDirectory)/**/*.zip'
+                  deploymentMethod: zipDeploy

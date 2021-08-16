@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+ branches:
+  include:
+    - master
+ paths:
+   include: 
+     - infra
+   exclude:
+     - webappdemo
+
+pool:
+  vmImage: ubuntu-latest
+
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'AzureSponsorship'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az group create --location ''westus3''  --name kkdevopsdemo'
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'AzureSponsorship' 
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az deployment group create --resource-group kkdevopsdemo --template-file $(Build.SourcesDirectory)/infra/webapps.bicep'
+      
