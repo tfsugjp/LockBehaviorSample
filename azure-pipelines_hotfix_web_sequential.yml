@@ -10,7 +10,7 @@ trigger:
   exclude:
     - master
  paths:
-   include: 
+   include:
      - webappdemo
    exclude:
      - infra
@@ -22,13 +22,13 @@ variables:
   buildConfiguration: 'Release'
   solutionFiles: '**/*.sln'
 
-lockBehavior: sequence
+lockBehavior: sequential
 
 stages:
   - stage: Build
     displayName: Build Solution
     jobs:
-      - job: Build 
+      - job: Build
         pool:
           vmImage: 'windows-latest'
         steps:
@@ -58,14 +58,14 @@ stages:
           - task: PublishBuildArtifacts@1
             displayName: 'publish artifacts'
             inputs:
-              pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
               artifactName: 'myWebsiteName'
   - stage: Deploy
     displayName: 'Web Deploy'
     dependsOn: Build
     jobs:
       - deployment: 'Webdeploy'
-        pool: 
+        pool:
           vmimage: 'Ubuntu-latest'
         environment: hotfix
         strategy:

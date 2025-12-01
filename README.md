@@ -1,4 +1,4 @@
-# Introduction 
+# Introduction
 
 This repository is sample for Azure Pipelines and Environment for ```lockBehavior```.
 
@@ -6,7 +6,7 @@ This repository is sample for Azure Pipelines and Environment for ```lockBehavio
 
 ## What is lockBehavior
 
-```lockBehavior: sequence``` is new feature.
+```lockBehavior: sequential``` is new feature.
 
 ![lockBehavior](images/lockbehavior.png)
 
@@ -22,6 +22,6 @@ Azure Pipelines and Environment, ```lockBehavior```'s default is ```runLatest```
 
 ![sequential](images/lockbehavior_sequential.png)
 
-```sequential``` is new feature, YAML sample is [sequential](azure-pipelines_hotfix_web_sequence.yml).
+```sequential``` is new feature, YAML sample is [sequential](azure-pipelines_hotfix_web_sequential.yml).
 
-```sequential``` deploy is cumulative.  
+```sequential``` deploy is cumulative.
